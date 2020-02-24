@@ -1,0 +1,683 @@
+-----------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/jenniferjackson/Desktop/JenniferJackson_PS6.log
+  log type:  text
+ opened on:  28 Mar 2019, 13:30:32
+
+. use "/Users/jenniferjackson/Desktop/NYU/Large Databases/PS6/FFCWS_sub2.dta"
+
+. 
+. * PROBLEM 1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~        
+>                          
+. 
+. * This .do file analyses data from the Fragile Families and Child Wellbeing
+. * Study.
+. 
+. * PROBLEM 2 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~        
+>                          
+. 
+. describe
+
+Contains data from /Users/jenniferjackson/Desktop/NYU/Large Databases/PS6/FFCWS_sub2.dta
+  obs:         1,154                          
+ vars:            16                          29 Oct 2017 18:54
+ size:        34,620                          (_dta has notes)
+-----------------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+-----------------------------------------------------------------------------------------
+wjss            int     %8.0g                 Age 5 Woodcock Johnson
+usborn          byte    %9.0g                 Mother born in the US
+firstborn       byte    %9.0g                 Child is first born to mother
+lbw             byte    %9.0g                 Child was low birth weight <2500 grams
+ageatbirth      byte    %9.0g                 Mother's age at child's birth
+numberofmoves   byte    %9.0g                 Number of moves lifetime
+internalizing   float   %9.0g                 Age 5 internalizing behavior problems
+attention       float   %9.0g                 Age 5 attention problems
+externalizing   float   %9.0g                 Age 5 externalizing behavior problems
+male            byte    %9.0g      Sex        Child Sex
+ppvt            int     %8.0g                 Age 5 PPVT
+childage_mos    byte    %9.0g                 Child's age at mother's 5Y core interview
+momrace         byte    %12.0g     momrace    Mother race
+momeduc         byte    %14.0g     momeduc    Mother education
+avgpoverty_to~e float   %9.0g                 Average lifetime poverty level %--topcoded
+povertystatus   byte    %9.0g      povertystatus
+                                              Poverty status
+-----------------------------------------------------------------------------------------
+Sorted by: 
+
+. * 16 Variables
+. * 1,154 Observations
+. 
+. codebook
+
+-----------------------------------------------------------------------------------------
+wjss                                                               Age 5 Woodcock Johnson
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (int)
+
+                 range:  [46,162]                     units:  1
+         unique values:  85                       missing .:  0/1,154
+
+                  mean:   99.6837
+              std. dev:   14.9163
+
+           percentiles:        10%       25%       50%       75%       90%
+                                80        89       102       108       116
+
+-----------------------------------------------------------------------------------------
+usborn                                                              Mother born in the US
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+
+                 range:  [0,1]                        units:  1
+         unique values:  2                        missing .:  0/1,154
+
+            tabulation:  Freq.  Value
+                           127  0
+                         1,027  1
+
+-----------------------------------------------------------------------------------------
+firstborn                                                   Child is first born to mother
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+
+                 range:  [0,1]                        units:  1
+         unique values:  2                        missing .:  0/1,154
+
+            tabulation:  Freq.  Value
+                           721  0
+                           433  1
+
+-----------------------------------------------------------------------------------------
+lbw                                                Child was low birth weight <2500 grams
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+
+                 range:  [0,1]                        units:  1
+         unique values:  2                        missing .:  0/1,154
+
+            tabulation:  Freq.  Value
+                         1,057  0
+                            97  1
+
+-----------------------------------------------------------------------------------------
+ageatbirth                                                  Mother's age at child's birth
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+
+                 range:  [13,44]                      units:  1
+         unique values:  32                       missing .:  0/1,154
+
+                  mean:   21.3995
+              std. dev:    5.1443
+
+           percentiles:        10%       25%       50%       75%       90%
+                                16        18        20        24        29
+
+-----------------------------------------------------------------------------------------
+numberofmoves                                                    Number of moves lifetime
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+
+                 range:  [0,13]                       units:  1
+         unique values:  11                       missing .:  0/1,154
+
+                  mean:   1.81369
+              std. dev:   1.68431
+
+           percentiles:        10%       25%       50%       75%       90%
+                                 0         1         1         3         4
+
+-----------------------------------------------------------------------------------------
+internalizing                                       Age 5 internalizing behavior problems
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (float)
+
+                 range:  [0,1.1304348]                units:  1.000e-09
+         unique values:  38                       missing .:  0/1,154
+
+                  mean:   .246478
+              std. dev:    .19402
+
+           percentiles:        10%       25%       50%       75%       90%
+                           .043478   .086957   .217391   .347826   .478261
+
+-----------------------------------------------------------------------------------------
+attention                                                        Age 5 attention problems
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (float)
+
+                 range:  [0,1.6]                      units:  1.000e-08
+         unique values:  25                       missing .:  0/1,154
+
+                  mean:   .265141
+              std. dev:   .257898
+
+           percentiles:        10%       25%       50%       75%       90%
+                                 0   .090909   .181818   .363636   .636364
+
+-----------------------------------------------------------------------------------------
+externalizing                                       Age 5 externalizing behavior problems
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (float)
+
+                 range:  [0,1.5]                      units:  1.000e-09
+         unique values:  65                       missing .:  0/1,154
+
+                  mean:   .442432
+              std. dev:   .259205
+
+           percentiles:        10%       25%       50%       75%       90%
+                           .133333   .233333        .4        .6        .8
+
+-----------------------------------------------------------------------------------------
+male                                                                            Child Sex
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  Sex
+
+                 range:  [0,1]                        units:  1
+         unique values:  2                        missing .:  0/1,154
+
+            tabulation:  Freq.   Numeric  Label
+                           559         0  0: Female
+                           595         1  1: Male
+
+-----------------------------------------------------------------------------------------
+ppvt                                                                           Age 5 PPVT
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (int)
+
+                 range:  [40,133]                     units:  1
+         unique values:  88                       missing .:  0/1,154
+
+                  mean:   94.0165
+              std. dev:   15.4207
+
+           percentiles:        10%       25%       50%       75%       90%
+                                75        85        95       105       112
+
+-----------------------------------------------------------------------------------------
+childage_mos                                    Child's age at mother's 5Y core interview
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+
+                 range:  [56,71]                      units:  1
+         unique values:  15                       missing .:  0/1,154
+
+                  mean:   60.4991
+              std. dev:   2.18734
+
+           percentiles:        10%       25%       50%       75%       90%
+                                58        59        60        61        64
+
+-----------------------------------------------------------------------------------------
+momrace                                                                       Mother race
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  momrace
+
+                 range:  [1,4]                        units:  1
+         unique values:  4                        missing .:  0/1,154
+
+            tabulation:  Freq.   Numeric  Label
+                           266         1  1.White NH
+                           558         2  2.Black NH
+                            32         3  3.Other race
+                           298         4  4.Hispanic
+
+-----------------------------------------------------------------------------------------
+momeduc                                                                  Mother education
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  momeduc
+
+                 range:  [1,4]                        units:  1
+         unique values:  4                        missing .:  0/1,154
+
+            tabulation:  Freq.   Numeric  Label
+                           362         1  1.Some HS
+                           375         2  2.HS
+                           289         3  3.Some Coll
+                           128         4  4.College Grad
+
+-----------------------------------------------------------------------------------------
+avgpoverty_topcode                             Average lifetime poverty level %--topcoded
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (float)
+
+                 range:  [.1,5]                       units:  1.000e-08
+         unique values:  258                      missing .:  0/1,154
+
+                  mean:   1.77712
+              std. dev:   1.37036
+
+           percentiles:        10%       25%       50%       75%       90%
+                                .4      .725     1.375     2.375      4.05
+
+-----------------------------------------------------------------------------------------
+povertystatus                                                              Poverty status
+-----------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  povertystatus
+
+                 range:  [1,3]                        units:  1
+         unique values:  3                        missing .:  0/1,154
+
+            tabulation:  Freq.   Numeric  Label
+                           420         1  Poor
+                           369         2  Near poor
+                           365         3  Not poor
+
+. * No values are missing.
+. 
+. * Categorical Variables (7): usborn, firstborn, lbw, male, momrace, momeduc,
+. * povertystatus
+. 
+. * Continuous Variables (9): wjss, ageatbirth, numberofmoves, internalizing,
+. * attention, exdternalizing, ppvt, childage_mos, avgpoverty_topcode
+. 
+. * PROBLEM 3 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~        
+>                          
+. 
+. tabulate momrace momeduc, cell
+
++-----------------+
+| Key             |
+|-----------------|
+|    frequency    |
+| cell percentage |
++-----------------+
+
+             |              Mother education
+ Mother race | 1.Some HS       2.HS  3.Some Co  4.College |     Total
+-------------+--------------------------------------------+----------
+  1.White NH |        45         73         77         71 |       266 
+             |      3.90       6.33       6.67       6.15 |     23.05 
+-------------+--------------------------------------------+----------
+  2.Black NH |       184        213        134         27 |       558 
+             |     15.94      18.46      11.61       2.34 |     48.35 
+-------------+--------------------------------------------+----------
+3.Other race |        10          5          4         13 |        32 
+             |      0.87       0.43       0.35       1.13 |      2.77 
+-------------+--------------------------------------------+----------
+  4.Hispanic |       123         84         74         17 |       298 
+             |     10.66       7.28       6.41       1.47 |     25.82 
+-------------+--------------------------------------------+----------
+       Total |       362        375        289        128 |     1,154 
+             |     31.37      32.50      25.04      11.09 |    100.00 
+
+. * 11.09% of the mothers had completed college.
+. 
+. * PROBLEM 4 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~        
+>                          
+. 
+. * group average poverty into 3 levels
+. gen income_group = 1
+
+. replace income_group = 2 if avgpoverty_topcode >=1 & avgpoverty_topcode<2
+(369 real changes made)
+
+. replace income_group = 3 if avgpoverty_topcode >= 2
+(365 real changes made)
+
+. 
+. tabstat wjss ageatbirth, by (income_group) statistics (mean sd med p75)
+
+Summary statistics: mean, sd, p50, p75
+  by categories of: income_group 
+
+income_group |      wjss  ageatb~h
+-------------+--------------------
+           1 |  94.62381  19.24286
+             |  13.90151  3.513774
+             |        95        19
+             |     104.5        21
+-------------+--------------------
+           2 |  100.0867  20.53117
+             |  14.25441  4.330093
+             |       102        19
+             |       108        22
+-------------+--------------------
+           3 |  105.0986   24.7589
+             |  14.75798  5.762894
+             |       105        24
+             |       112        29
+-------------+--------------------
+       Total |  99.68371  21.39948
+             |  14.91635  5.144304
+             |       102        20
+             |       108        24
+----------------------------------
+
+. 
+. *     Income Group 1      WJ Score   Mother's Age
+. 
+. *               mean      94.6       19 
+. * standard deviation      13.9       4
+. *             median      95         19
+. *    75th percentile      104.5      21
+. * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+. *     Income Group 2      WJ Score   Mother's Age
+. 
+. *               mean      100.1      21 
+. * standard deviation      14.3       4
+. *             median      102        19
+. *    75th percentile      108        22
+. * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+. *     Income Group 3      WJ Score   Mother's Age
+. 
+. *               mean      105.1      25 
+. * standard deviation      14.8       6
+. *             median      105        24
+. *    75th percentile      112        29
+. 
+. 
+. * PROBLEM 5a ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~       
+>                          
+. 
+. regress wjss avgpoverty_topcode
+
+      Source |       SS           df       MS      Number of obs   =     1,154
+-------------+----------------------------------   F(1, 1152)      =    113.01
+       Model |  22918.4724         1  22918.4724   Prob > F        =    0.0000
+    Residual |  233621.081     1,152  202.796078   R-squared       =    0.0893
+-------------+----------------------------------   Adj R-squared   =    0.0885
+       Total |  256539.554     1,153  222.497445   Root MSE        =    14.241
+
+------------------------------------------------------------------------------------
+              wjss |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------------+----------------------------------------------------------------
+avgpoverty_topcode |   3.253443   .3060414    10.63   0.000     2.652982    3.853904
+             _cons |   93.90194   .6866813   136.75   0.000     92.55465    95.24923
+------------------------------------------------------------------------------------
+
+. * The linear model is wjss = 3.3(avgpoverty_topcode) + 93.9
+. * This means that for every 1 unit increase in avgpoverty (i.e., up and out of
+. * poverty), there are, on average, 3.3 points added to a kid's Woodcock Johnson
+. * score.
+. 
+. * PROBLEM 5b ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~       
+>                          
+. 
+. regress wjss b3.income_group
+
+      Source |       SS           df       MS      Number of obs   =     1,154
+-------------+----------------------------------   F(2, 1151)      =     52.68
+       Model |  21515.3176         2  10757.6588   Prob > F        =    0.0000
+    Residual |  235024.236     1,151  204.191343   R-squared       =    0.0839
+-------------+----------------------------------   Adj R-squared   =    0.0823
+       Total |  256539.554     1,153  222.497445   Root MSE        =     14.29
+
+------------------------------------------------------------------------------
+        wjss |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+income_group |
+          1  |  -10.47482   1.022545   -10.24   0.000    -12.48108    -8.46856
+          2  |  -5.011909    1.05489    -4.75   0.000    -7.081632   -2.942187
+             |
+       _cons |   105.0986   .7479494   140.52   0.000     103.6311    106.5661
+------------------------------------------------------------------------------
+
+. * Excluding the highest income category, the linear model is now
+. * wjss = -10.5(income_group1) - 5.0(income_group2) + 105.1
+. * This means there is a 10.5 point difference (drop) in WJ points from group 3
+. * to group 1 and there is a 5 point drop in points from group 3 to group 2.
+. 
+. * PROBLEM 5c ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~       
+>                          
+. 
+. regress wjss usborn#ib3.income_group
+
+      Source |       SS           df       MS      Number of obs   =     1,154
+-------------+----------------------------------   F(5, 1148)      =     21.90
+       Model |  22337.5291         5  4467.50583   Prob > F        =    0.0000
+    Residual |  234202.025     1,148  204.008732   R-squared       =    0.0871
+-------------+----------------------------------   Adj R-squared   =    0.0831
+       Total |  256539.554     1,153  222.497445   Root MSE        =    14.283
+
+-------------------------------------------------------------------------------------
+               wjss |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+--------------------+----------------------------------------------------------------
+usborn#income_group |
+               0 1  |  -15.95724   3.101424    -5.15   0.000    -22.04233   -9.872141
+               0 2  |  -7.269817   3.037434    -2.39   0.017    -13.22936   -1.310273
+               1 1  |  -11.53894    2.18729    -5.28   0.000    -15.83047   -7.247406
+               1 2  |  -6.376524   2.207297    -2.89   0.004    -10.70731   -2.045736
+               1 3  |  -1.685528   2.212181    -0.76   0.446    -6.025899    2.654842
+                    |
+              _cons |   106.5625   2.061597    51.69   0.000     102.5176    110.6074
+-------------------------------------------------------------------------------------
+
+. * Having an interaction term essentially means that a mother's country of birth
+. * has an effect on how income group effects a child's WJ scores.
+. * If you had a regression line for WJ score and mother's country of birth and a
+. * second regression line for WJ score and income group, the coefficient of the
+. * interaction term would represent the difference between the two slopes of
+. * those lines.
+. 
+. * In this particular case, for example, if a mother were a US native
+. * (usborn = 1) and she were in income group 1 (lowest income bracket in this
+. * context), then there would be, on average, a 12-point drop in WJ score
+. * compared to the standard of comparison - in this case, a non-US native in the
+. * highest income bracket (usborn#income_group: (0 3)).  
+. 
+. * PROBLEM 5d ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~       
+>                          
+. 
+. margins usborn#income_group
+
+Adjusted predictions                            Number of obs     =      1,154
+Model VCE    : OLS
+
+Expression   : Linear prediction, predict()
+
+-------------------------------------------------------------------------------------
+                    |            Delta-method
+                    |     Margin   Std. Err.      t    P>|t|     [95% Conf. Interval]
+--------------------+----------------------------------------------------------------
+usborn#income_group |
+               0 1  |   90.60526   2.317035    39.10   0.000     86.05917    95.15136
+               0 2  |   99.29268   2.230655    44.51   0.000     94.91606    103.6693
+               0 3  |   106.5625   2.061597    51.69   0.000     102.5176    110.6074
+               1 1  |   95.02356   .7307902   130.03   0.000     93.58973    96.45739
+               1 2  |    100.186   .7886557   127.03   0.000     98.63861    101.7333
+               1 3  |    104.877   .8022223   130.73   0.000      103.303     106.451
+-------------------------------------------------------------------------------------
+
+. * Income Group 1:
+. * WJ score if US native mother = 95.02
+. * WJ score if non-US native mother = 90.61
+. * Differnce = 4.41 points
+. 
+. margins usborn income_group
+
+Predictive margins                              Number of obs     =      1,154
+Model VCE    : OLS
+
+Expression   : Linear prediction, predict()
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      usborn |
+          0  |   98.43026   1.282605    76.74   0.000     95.91375    100.9468
+          1  |   99.79083   .4457769   223.86   0.000      98.9162    100.6655
+             |
+income_group |
+          1  |   94.53732   .6985679   135.33   0.000      93.1667    95.90793
+          2  |   100.0877    .743556   134.61   0.000     98.62879    101.5465
+          3  |   105.0625   .7491199   140.25   0.000     103.5927    106.5323
+------------------------------------------------------------------------------
+
+. * Children of US native mothers have average WJ scores of 99.79 whereas children
+. * of non-US native mothers only have average WJ scores of 98.43.
+. 
+. margins r.usborn@income_group
+
+Contrasts of adjusted predictions
+Model VCE    : OLS
+
+Expression   : Linear prediction, predict()
+
+-------------------------------------------------------
+                    |         df           F        P>F
+--------------------+----------------------------------
+usborn@income_group |
+        (1 vs 0) 1  |          1        3.31     0.0692
+        (1 vs 0) 2  |          1        0.14     0.7058
+        (1 vs 0) 3  |          1        0.58     0.4463
+             Joint  |          3        1.34     0.2588
+                    |
+        Denominator |       1148
+-------------------------------------------------------
+
+---------------------------------------------------------------------
+                    |            Delta-method
+                    |   Contrast   Std. Err.     [95% Conf. Interval]
+--------------------+------------------------------------------------
+usborn@income_group |
+        (1 vs 0) 1  |   4.418297   2.429548     -.3485559     9.18515
+        (1 vs 0) 2  |   .8932927   2.365967     -3.748812    5.535397
+        (1 vs 0) 3  |  -1.685528   2.212181     -6.025899    2.654842
+---------------------------------------------------------------------
+
+. * For all three income groups, the difference in scores between children of US
+. * and non-US native mothers is not statistically significant (none of the three
+. * p-values are less than 5%).
+. 
+. * PROBLEM 6a ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~       
+>                          
+. 
+. regress wjss male avgpoverty_topcode
+
+      Source |       SS           df       MS      Number of obs   =     1,154
+-------------+----------------------------------   F(2, 1151)      =     63.80
+       Model |   25600.669         2  12800.3345   Prob > F        =    0.0000
+    Residual |  230938.885     1,151   200.64195   R-squared       =    0.0998
+-------------+----------------------------------   Adj R-squared   =    0.0982
+       Total |  256539.554     1,153  222.497445   Root MSE        =    14.165
+
+------------------------------------------------------------------------------------
+              wjss |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------------+----------------------------------------------------------------
+              male |  -3.052595   .8349006    -3.66   0.000    -4.690693   -1.414498
+avgpoverty_topcode |   3.213079   .3046117    10.55   0.000     2.615423    3.810736
+             _cons |   95.54758   .8179885   116.81   0.000     93.94267     97.1525
+------------------------------------------------------------------------------------
+
+. estimates store x
+
+. estout x, cells (b se _star)
+
+-------------------------
+                        x
+               b/se/_star
+-------------------------
+male            -3.052595
+                 .8349006
+                      ***
+avgpoverty~e     3.213079
+                 .3046117
+                      ***
+_cons            95.54758
+                 .8179885
+                      ***
+-------------------------
+
+. * The 3 stars indicate p-values < 0.001
+. 
+. * PROBLEM 6b ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~       
+>                          
+. 
+. regress wjss male avgpoverty_topcode i.usborn ageatbirth i.momrace
+
+      Source |       SS           df       MS      Number of obs   =     1,154
+-------------+----------------------------------   F(7, 1146)      =     22.77
+       Model |   31322.639         7  4474.66271   Prob > F        =    0.0000
+    Residual |  225216.915     1,146  196.524358   R-squared       =    0.1221
+-------------+----------------------------------   Adj R-squared   =    0.1167
+       Total |  256539.554     1,153  222.497445   Root MSE        =    14.019
+
+------------------------------------------------------------------------------------
+              wjss |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------------+----------------------------------------------------------------
+              male |   -3.32513   .8290803    -4.01   0.000    -4.951815   -1.698444
+avgpoverty_topcode |   2.973217   .3754822     7.92   0.000     2.236508    3.709927
+          1.usborn |   .4571441   1.494107     0.31   0.760    -2.474347    3.388635
+        ageatbirth |   .2838816   .0976054     2.91   0.004     .0923763    .4753869
+                   |
+           momrace |
+       2.Black NH  |   3.664219   1.147111     3.19   0.001     1.413544    5.914893
+     3.Other race  |   2.253408   2.711747     0.83   0.406    -3.067137    7.573953
+       4.Hispanic  |  -.7406568   1.327972    -0.56   0.577    -3.346186    1.864872
+                   |
+             _cons |   87.98961   2.965833    29.67   0.000     82.17054    93.80868
+------------------------------------------------------------------------------------
+
+. estimates store y
+
+. estout y, cells (b se _star)
+
+-------------------------
+                        y
+               b/se/_star
+-------------------------
+male             -3.32513
+                 .8290803
+                      ***
+avgpoverty~e     2.973217
+                 .3754822
+                      ***
+0.usborn                0
+                        .
+                         
+1.usborn         .4571441
+                 1.494107
+                         
+ageatbirth       .2838816
+                 .0976054
+                       **
+1.momrace               0
+                        .
+                         
+2.momrace        3.664219
+                 1.147111
+                       **
+3.momrace        2.253408
+                 2.711747
+                         
+4.momrace       -.7406568
+                 1.327972
+                         
+_cons            87.98961
+                 2.965833
+                      ***
+-------------------------
+
+. * The 2 stars indicate p-values < 0.01
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/jenniferjackson/Desktop/JenniferJackson_PS6.log
+  log type:  text
+ closed on:  28 Mar 2019, 13:30:33
+-----------------------------------------------------------------------------------------

@@ -1,0 +1,545 @@
+--------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/jenniferjackson/Desktop/NYU/Large Databases/PS4/NHES data and documentat
+> ion/JenniferJackson_PS4.log
+  log type:  text
+ opened on:   7 Mar 2019, 16:07:24
+
+. 
+. use "/Users/jenniferjackson/Desktop/NYU/Large Databases/PS4/NHES data and documentation/NH
+> ES_12_PFI_v1_0_171007172721.dta"
+
+. 
+. * PROBLEM 1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. * This .do file analyses data from the National Household Education Survey
+. * (2012), which can be downloaded from the eDAT website.
+. 
+. * PROBLEM 2 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. rename *, lower
+
+. * Converts all variable names to lowercase.
+. 
+. * PROBLEM 3 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. replace homeschlx = . if homeschlx == -1
+(333 real changes made, 333 to missing)
+
+. replace scpubpri = . if scpubpri == -1
+(333 real changes made, 333 to missing)
+
+. replace schoicex = . if schoicex == -1
+(1,738 real changes made, 1,738 to missing)
+
+. replace schrtschl = . if schrtschl == -1
+(1,738 real changes made, 1,738 to missing)
+
+. replace sneighbrx = . if sneighbrx == -1
+(333 real changes made, 333 to missing)
+
+. replace spubchoix = . if spubchoix == -1
+(333 real changes made, 333 to missing)
+
+. replace sconsidr = . if sconsidr == -1
+(333 real changes made, 333 to missing)
+
+. replace sperform = . if sperform == -1
+(9,642 real changes made, 9,642 to missing)
+
+. replace s1stchoi = . if s1stchoi == -1
+(333 real changes made, 333 to missing)
+
+. replace seenjoy = . if seenjoy == -1
+(333 real changes made, 333 to missing)
+
+. replace chisprm = . if chisprm == -1
+(13,356 real changes made, 13,356 to missing)
+
+. replace par2educ = . if par2educ == -1
+(3,806 real changes made, 3,806 to missing)
+
+. 
+. * s12chart == -1 --> homeschool or private school
+. * s12pbpv == -1 --> homeschool
+. 
+. * None of the continuous variables have missing data. Values of -1 indicate
+. * homeschooled students.
+. 
+. * allgradex is formatted as STRING
+. 
+. * PROBLEM 4 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. codebook, problems
+
+   Potential problems in dataset   */NHES_12_PFI_v1_0_171007172721.dta
+
+               potential problem   variables
+--------------------------------------------------
+  constant (or all missing) vars   chisprm
+       incompletely labeled vars   fsfreq
+--------------------------------------------------
+
+. 
+. egen nmis=rmiss2(homeschlx scpubpri schoicex schrtschl sneighbrx spubchoix ///
+>  sconsidr sperform s1stchoi seenjoy chisprm par2educ)
+
+. 
+. tab nmis
+
+       nmis |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        158        1.12        1.12
+          1 |      2,942       20.79       21.91
+          2 |      7,096       50.14       72.05
+          3 |      2,856       20.18       92.23
+          4 |        634        4.48       96.71
+          5 |        133        0.94       97.65
+         10 |          9        0.06       97.71
+         11 |        270        1.91       99.62
+         12 |         54        0.38      100.00
+------------+-----------------------------------
+      Total |     14,152      100.00
+
+. 
+. * chisprm is missing data for every observation.
+. drop chisprm
+
+. 
+. nmissing
+
+homeschlx         333
+scpubpri          333
+schoicex         1738
+schrtschl        1738
+sneighbrx         333
+spubchoix         333
+sconsidr          333
+sperform         9642
+s1stchoi          333
+seenjoy           333
+par2educ         3806
+
+. 
+. * The variable with the most missing cases is sperform (9,642 missing).
+. 
+. * PROBLEM 5 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. * Looking at the survey, the question about looking at the school's performance
+. * is preceded by a question about whether or not parents considered other schools.
+. * If the parents did not consider another school, then they were directed to skip
+. * the question about looking at those other school's performance. This is why so
+. * many observations are missing for this variable. Not everyone who took the
+. * survey even looked at the question.
+. 
+. * PROBLEM 6 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. duplicates report basmid
+
+Duplicates in terms of basmid
+
+--------------------------------------
+   copies | observations       surplus
+----------+---------------------------
+        1 |        14152             0
+--------------------------------------
+
+. 
+. * No duplicate IDs
+. 
+. * PROBLEM 7 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. codebook fsfreq
+
+--------------------------------------------------------------------------------------------
+fsfreq                                            E27. Times participated in school meetings
+--------------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  FSFREQF, but 61 nonmissing values are not labeled
+
+                 range:  [-1,99]                      units:  1
+         unique values:  62                       missing .:  0/14,152
+
+              examples:  2     
+                         4     
+                         5     
+                         10    
+
+. * Times Participated in School Meetings
+. * This variable came up as a problem when running "codebook, problems" because
+. * it was incompletely labeled. 61 nonmissing values are not labeled.
+. 
+. codebook cspeakx
+
+--------------------------------------------------------------------------------------------
+cspeakx                                            E57/H43. Language spoken by child at home
+--------------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  CSPEAKXF
+
+                 range:  [1,6]                        units:  1
+         unique values:  6                        missing .:  0/14,152
+
+            tabulation:  Freq.   Numeric  Label
+                            46         1  1 Child is not able to speak
+                        12,421         2  2 English
+                           555         3  3 Spanish
+                           123         4  4 Language other than English or
+                                          Spanish
+                           622         5  5 English and Spanish equally
+                           385         6  6 English and another language
+                                          equally
+
+. * Language Spoken by Child at Home
+. * This one looks reasonable.
+. 
+. codebook scpubpri
+
+--------------------------------------------------------------------------------------------
+scpubpri                                                                  E3. Type of school
+--------------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  SCPUBPRIF
+
+                 range:  [1,4]                        units:  1
+         unique values:  4                        missing .:  333/14,152
+
+            tabulation:  Freq.   Numeric  Label
+                           640         1  1 Private, Catholic
+                           430         2  2 Private, religious but not
+                                          Catholic
+                           335         3  3 Private, not religious
+                        12,414         4  4 Public school
+                           333         .  
+
+. * Type of School
+. * This one looks reasonable. The fact that there are 333 missing values makes
+. * sense considering the minimum age is 3.
+. 
+. codebook ttlhhinc
+
+--------------------------------------------------------------------------------------------
+ttlhhinc                                                              E105/H85. Total income
+--------------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  TTLHHINCF
+
+                 range:  [1,10]                       units:  1
+         unique values:  10                       missing .:  0/14,152
+
+              examples:  3     3 $20,001 to $30,000
+                         5     5 $40,001 to $50,000
+                         7     7 $60,001 to $75,000
+                         9     9 $100,001 to $150,000
+
+. * Total Income
+. * This variable looks reasonable.
+. 
+. codebook hvintrnt
+
+--------------------------------------------------------------------------------------------
+hvintrnt                                                           E109/H89. Internet access
+--------------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  HVINTRNTF
+
+                 range:  [1,2]                        units:  1
+         unique values:  2                        missing .:  0/14,152
+
+            tabulation:  Freq.   Numeric  Label
+                        12,548         1  1 Yes
+                         1,604         2  2 No
+
+. * Internet Access
+. * This one looks reasonable.
+. 
+. * PROBLEM 8 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. tabulate schrtschl
+
+  E5. Charter |
+       school |      Freq.     Percent        Cum.
+--------------+-----------------------------------
+        1 Yes |        764        6.15        6.15
+         2 No |     11,650       93.85      100.00
+--------------+-----------------------------------
+        Total |     12,414      100.00
+
+. * shows that 764 students attend charter schools, however
+. 
+. tabulate s12chart
+
+      D-School charter, magnet/regular |
+                  public, other on CCD |      Freq.     Percent        Cum.
+---------------------------------------+-----------------------------------
+-1 Homeschooled/private school student |      1,618       11.43       11.43
+                      1 Charter School |        406        2.87       14.30
+     2 Magnet or Regular Public School |     11,925       84.26       98.57
+                 3 Other Public School |        203        1.43      100.00
+---------------------------------------+-----------------------------------
+                                 Total |     14,152      100.00
+
+. * shows that 406 students attend charter schools.
+. 
+. * The inconsistency might be explained by the fact that a charter school is a
+. * type of public school.
+. 
+. * PROBLEM 9 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. * 1 = White = cwhite           
+. * 2 = Black = cblack
+. * 3 = Asian or Pacific Islander = casian or cpaci
+. * 4 = Hispanic = chispan
+. * 5 = Other (not reported  or Native American) = camind or chisprm = .
+. 
+. generate race = 5
+
+. replace race = 1 if cwhite == 1
+(10,495 real changes made)
+
+. replace race = 2 if cblack == 1
+(2,165 real changes made)
+
+. replace race = 3 if casian == 1 | cpaci == 1
+(1,157 real changes made)
+
+. replace race = 4 if chispan == 1
+(3,046 real changes made)
+
+. 
+. label values race race_label
+
+. 
+. tabulate race
+
+       race |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      8,018       56.66       56.66
+          2 |      1,953       13.80       70.46
+          3 |      1,060        7.49       77.95
+          4 |      3,046       21.52       99.47
+          5 |         75        0.53      100.00
+------------+-----------------------------------
+      Total |     14,152      100.00
+
+. 
+. * PROBLEM 10 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. gen inc_1 = 1 if ttlhhinc == 1
+(13,126 missing values generated)
+
+. gen inc_2 = 2 if ttlhhinc == 2
+(12,843 missing values generated)
+
+. gen inc_3 = 3 if ttlhhinc == 3
+(12,722 missing values generated)
+
+. gen inc_4 = 4 if ttlhhinc == 4
+(12,929 missing values generated)
+
+. gen inc_5 = 5 if ttlhhinc == 5
+(13,021 missing values generated)
+
+. gen inc_6 = 6 if ttlhhinc == 6
+(13,109 missing values generated)
+
+. gen inc_7 = 7 if ttlhhinc == 7
+(12,810 missing values generated)
+
+. gen inc_8 = 8 if ttlhhinc == 8
+(12,113 missing values generated)
+
+. gen inc_9 = 9 if ttlhhinc == 9
+(12,188 missing values generated)
+
+. gen inc_10 = 10 if ttlhhinc == 10
+(12,507 missing values generated)
+
+. 
+. summarize inc_1 inc_2 inc_3 inc_4 inc_5 inc_6 inc_7 inc_8 inc_9 inc_10
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+       inc_1 |      1,026           1           0          1          1
+       inc_2 |      1,309           2           0          2          2
+       inc_3 |      1,430           3           0          3          3
+       inc_4 |      1,223           4           0          4          4
+       inc_5 |      1,131           5           0          5          5
+-------------+---------------------------------------------------------
+       inc_6 |      1,043           6           0          6          6
+       inc_7 |      1,342           7           0          7          7
+       inc_8 |      2,039           8           0          8          8
+       inc_9 |      1,964           9           0          9          9
+      inc_10 |      1,645          10           0         10         10
+
+. 
+. * 7.37% of families earn between $50,001 and $60,000.
+. 
+. * I think this question could have been answered by just running "tabulate
+. * ttlhhinc" because it shows the frequency for each income bracket.
+. 
+. * PROBLEM 11 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. generate school_type = .
+(14,152 missing values generated)
+
+. * Magnet or Regular Public School
+. replace school_type = 1 if s12chart == 2
+(11,925 real changes made)
+
+. * Charter School
+. replace school_type = 2 if s12chart == 1
+(406 real changes made)
+
+. * Other Public School
+. replace school_type = 3 if s12chart == 3
+(203 real changes made)
+
+. * Private School
+. replace school_type = 4 if s12pbpv == 2
+(1,285 real changes made)
+
+. 
+. tabulate school_type
+
+school_type |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |     11,925       86.29       86.29
+          2 |        406        2.94       89.23
+          3 |        203        1.47       90.70
+          4 |      1,285        9.30      100.00
+------------+-----------------------------------
+      Total |     13,819      100.00
+
+. 
+. label values school_type school_type_label
+
+. 
+. * PROBLEM 12 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. tabulate school_type par1educ, col
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+school_typ | D-Educational attainment of child's parent or guardian
+         e | 1 Less th  2 High sc  3 Vocatio  4 College  5 Graduat |     Total
+-----------+-------------------------------------------------------+----------
+         1 |     1,202      2,031      4,195      2,326      2,171 |    11,925 
+           |     90.31      90.47      88.93      82.13      80.59 |     86.29 
+-----------+-------------------------------------------------------+----------
+         2 |        53         67        141         79         66 |       406 
+           |      3.98       2.98       2.99       2.79       2.45 |      2.94 
+-----------+-------------------------------------------------------+----------
+         3 |        35         43         63         38         24 |       203 
+           |      2.63       1.92       1.34       1.34       0.89 |      1.47 
+-----------+-------------------------------------------------------+----------
+         4 |        41        104        318        389        433 |     1,285 
+           |      3.08       4.63       6.74      13.74      16.07 |      9.30 
+-----------+-------------------------------------------------------+----------
+     Total |     1,331      2,245      4,717      2,832      2,694 |    13,819 
+           |    100.00     100.00     100.00     100.00     100.00 |    100.00 
+
+. 
+. * Private school students have the largest percentage of parents with a
+. * university or graduate degree.
+. 
+. * PROBLEM 13 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. sort school_type
+
+. by school_type: egen avg_meeting_time = mean(fsfreq)
+
+. tabulate avg_meeting_time school_type
+
+avg_meetin |                 school_type
+    g_time |         1          2          3          4 |     Total
+-----------+--------------------------------------------+----------
+  4.935961 |         0          0        203          0 |       203 
+  7.081761 |    11,925          0          0          0 |    11,925 
+  7.295567 |         0        406          0          0 |       406 
+  11.36732 |         0          0          0      1,285 |     1,285 
+-----------+--------------------------------------------+----------
+     Total |    11,925        406        203      1,285 |    13,819 
+
+. label values avg_meeting_time avg_by_type_label
+
+. 
+. * Parents of private school students attend the most school meetings (approx
+. * 11 times).
+. 
+. * PROBLEM 14 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. gen edu_max = max(par1educ, par2educ)
+
+. label values edu_max edu_max_label
+
+. tabulate edu_max
+
+    edu_max |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      1,080        7.63        7.63
+          2 |      1,916       13.54       21.17
+          3 |      4,637       32.77       53.94
+          4 |      2,993       21.15       75.08
+          5 |      3,526       24.92      100.00
+------------+-----------------------------------
+      Total |     14,152      100.00
+
+. 
+. * PROBLEM 15 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. compress
+  variable nmis was float now byte
+  variable race was float now byte
+  variable inc_1 was float now byte
+  variable inc_2 was float now byte
+  variable inc_3 was float now byte
+  variable inc_4 was float now byte
+  variable inc_5 was float now byte
+  variable inc_6 was float now byte
+  variable inc_7 was float now byte
+  variable inc_8 was float now byte
+  variable inc_9 was float now byte
+  variable inc_10 was float now byte
+  variable school_type was float now byte
+  variable edu_max was float now byte
+  (594,384 bytes saved)
+
+. 
+. * PROBLEM 16 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
+>                       
+. 
+. save NHES2012_lastedit_7March2019.dta
+file NHES2012_lastedit_7March2019.dta saved
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/jenniferjackson/Desktop/NYU/Large Databases/PS4/NHES data and documentat
+> ion/JenniferJackson_PS4.log
+  log type:  text
+ closed on:   7 Mar 2019, 16:07:31
+--------------------------------------------------------------------------------------------

@@ -1,0 +1,967 @@
+---------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/jenniferjackson/Desktop/NYU/Large Databases/PS9/JenniferJackson_PS9
+> .log
+  log type:  text
+ opened on:  18 Apr 2019, 14:28:49
+
+. use "Week 11 ECLSK Replication.dta", clear
+
+. 
+. * Convert all variable names to lowercase.
+. rename *, lower
+
+. 
+. * PROBLEM 3 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
+>                            
+. 
+. * (a) The PSU variable is "bycwpsu" and the strata variable is "bycwstr".
+. 
+. * (b) Define the survey design.
+. svyset bycwpsu [pweight=bycw0], strata(bycwstr)
+
+      pweight: bycw0
+          VCE: linearized
+  Single unit: missing
+     Strata 1: bycwstr
+         SU 1: bycwpsu
+        FPC 1: <zero>
+
+. 
+. * PROBLEM 4 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
+>                            
+. 
+. * (a) Define new variable for race.
+. gen race_v2 = 1  /* White */
+
+. replace race_v2 = 2 if w1raceth == 2  /* Black */
+(2,133 real changes made)
+
+. replace race_v2 = 3 if w1raceth == 3 | w1raceth == 4 /* Hispanic */
+(2,683 real changes made)
+
+. replace race_v2 = 4 if w1raceth == 5 | w1raceth == 6 /* Asian/Pacific Islander */
+(1,045 real changes made)
+
+. replace race_v2 = 5 if w1raceth == 7 | w1raceth == 8  /* Other */
+(703 real changes made)
+
+. replace race_v2 = 0 if w1raceth == -9 | w1raceth == .  /* Missing Values */
+(5,470 real changes made)
+
+. 
+. * Add Labels
+. label define race_v2 1 "White" 2 "Black" 3 "Hispanic" 4 "Asian/Pacific Islander" 5 "O
+> ther" 0 "Missing", replace
+
+. 
+. * Check to make sure everyone is accounted for.
+. tabulate w1raceth race_v2
+
+       W1 CHILD RACE- |                   race_v2
+            COMPOSITE |         0          1          2          3 |     Total
+----------------------+--------------------------------------------+----------
+      NOT ASCERTAINED |        76          0          0          0 |        76 
+  WHITE, NON-HISPANIC |         0      9,375          0          0 |     9,375 
+BLACK OR AFRICAN AMER |         0          0      2,133          0 |     2,133 
+HISPANIC, RACE SPECIF |         0          0          0      1,338 |     1,338 
+HISPANIC, RACE NOT SP |         0          0          0      1,345 |     1,345 
+                ASIAN |         0          0          0          0 |       866 
+NATIVE HAWAIIAN, OTHE |         0          0          0          0 |       179 
+AMERICAN INDIAN OR AL |         0          0          0          0 |       302 
+MORE THAN ONE RACE, N |         0          0          0          0 |       401 
+----------------------+--------------------------------------------+----------
+                Total |        76      9,375      2,133      2,683 |    16,015 
+
+
+       W1 CHILD RACE- |        race_v2
+            COMPOSITE |         4          5 |     Total
+----------------------+----------------------+----------
+      NOT ASCERTAINED |         0          0 |        76 
+  WHITE, NON-HISPANIC |         0          0 |     9,375 
+BLACK OR AFRICAN AMER |         0          0 |     2,133 
+HISPANIC, RACE SPECIF |         0          0 |     1,338 
+HISPANIC, RACE NOT SP |         0          0 |     1,345 
+                ASIAN |       866          0 |       866 
+NATIVE HAWAIIAN, OTHE |       179          0 |       179 
+AMERICAN INDIAN OR AL |         0        302 |       302 
+MORE THAN ONE RACE, N |         0        401 |       401 
+----------------------+----------------------+----------
+                Total |     1,045        703 |    16,015 
+
+. 
+. * Compare frequency to proportion.
+. tabulate race_v2
+
+    race_v2 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      5,470       25.55       25.55
+          1 |      9,375       43.79       69.34
+          2 |      2,133        9.96       79.30
+          3 |      2,683       12.53       91.84
+          4 |      1,045        4.88       96.72
+          5 |        703        3.28      100.00
+------------+-----------------------------------
+      Total |     21,409      100.00
+
+. svy: tabulate race_v2
+(running tabulate on estimation sample)
+
+Number of strata   =        89                  Number of obs     =     18,211
+Number of PSUs     =       537                  Population size   =  3,863,204
+                                                Design df         =        448
+
+----------------------
+  race_v2 | proportion
+----------+-----------
+        0 |      .2361
+        1 |      .4583
+        2 |      .1115
+        3 |      .1387
+        4 |      .0235
+        5 |      .0319
+          | 
+    Total |          1
+----------------------
+  Key:  proportion  =  cell proportion
+
+. 
+. * The survey design adjusts the "Asian/Pacific Islander" category the most,
+. * implying that this group was oversampled.
+. 
+. ** In order to recreate Table 2 in Problem 7 below, it's necessary to dummy code
+. * this race variable as follows:
+. gen Black = 0
+
+. replace Black = 1 if race_v2==2
+(2,133 real changes made)
+
+. gen Hispanic = 0
+
+. replace Hispanic = 1 if race_v2==3
+(2,683 real changes made)
+
+. gen Asian = 0
+
+. replace Asian = 1 if race_v2==4
+(1,045 real changes made)
+
+. gen Other = 0
+
+. replace Other = 1 if race_v2==5
+(703 real changes made)
+
+. 
+. 
+. * (b) Copy p1hmafb variable.
+. gen momage = p1hmafb
+(3,312 missing values generated)
+
+. 
+. * (c) Create dummy variable to differentiate teen mothers.
+. gen teen = .
+(21,409 missing values generated)
+
+. replace teen = 1 if p1hmafb <= 19 & p1hmafb >= 12
+(4,368 real changes made)
+
+. replace teen = 0 if p1hmafb > 19 & p1hmafb <= 49
+(12,435 real changes made)
+
+. tabulate teen /* Only 16,803 applicable values */
+
+       teen |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     12,435       74.00       74.00
+          1 |      4,368       26.00      100.00
+------------+-----------------------------------
+      Total |     16,803      100.00
+
+. * 4,368 known teen mothers
+. * 12,435 not
+. 
+. * (d) Create dummy variable to differentiate new mothers in 30s.
+. gen thirties =.
+(21,409 missing values generated)
+
+. replace thirties = 1 if p1hmafb >=30 & p1hmafb <=39
+(2,671 real changes made)
+
+. replace thirties = 0 if p1hmafb <30 & p1hmafb >=12 /* under 30 */
+(14,073 real changes made)
+
+. replace thirties = 0 if p1hmafb <=49 & p1hmafb > 39 /* over 30 */
+(59 real changes made)
+
+. tabulate thirties
+
+   thirties |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     14,132       84.10       84.10
+          1 |      2,671       15.90      100.00
+------------+-----------------------------------
+      Total |     16,803      100.00
+
+. * 2,671 known new mothers in 30s
+. * 14,132 not
+. 
+. * (e) Create dummy variable for gender.
+. gen female =.
+(21,409 missing values generated)
+
+. replace female = 1 if gender == 2
+(10,446 real changes made)
+
+. replace female = 0 if gender == 1
+(10,950 real changes made)
+
+. tabulate female
+
+     female |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     10,950       51.18       51.18
+          1 |     10,446       48.82      100.00
+------------+-----------------------------------
+      Total |     21,396      100.00
+
+. * 10,446 known females
+. * 10,950 known males
+. 
+. * (f) Create a dummy variable to differentiate WIC participants.
+. gen wic =.
+(21,409 missing values generated)
+
+. replace wic = 1 if p1wic ==1
+(8,008 real changes made)
+
+. replace wic = 0 if p1wic ==2
+(9,845 real changes made)
+
+. tabulate wic
+
+        wic |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,845       55.14       55.14
+          1 |      8,008       44.86      100.00
+------------+-----------------------------------
+      Total |     17,853      100.00
+
+. 
+. * (g) Create two variables for book ownership.
+. gen books = p1chlboo if p1chlboo <= 200 & p1chlboo >=0
+(3,497 missing values generated)
+
+. tabulate books
+
+      books |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        135        0.75        0.75
+          1 |         35        0.20        0.95
+          2 |         87        0.49        1.43
+          3 |        165        0.92        2.36
+          4 |        172        0.96        3.32
+          5 |        259        1.45        4.76
+          6 |        205        1.14        5.91
+          7 |        104        0.58        6.49
+          8 |        134        0.75        7.24
+          9 |         31        0.17        7.41
+         10 |        637        3.56       10.96
+         11 |         28        0.16       11.12
+         12 |        218        1.22       12.34
+         13 |         24        0.13       12.47
+         14 |         24        0.13       12.61
+         15 |        453        2.53       15.14
+         16 |         23        0.13       15.26
+         17 |         11        0.06       15.32
+         18 |         20        0.11       15.44
+         19 |          5        0.03       15.46
+         20 |      1,084        6.05       21.52
+         21 |          2        0.01       21.53
+         22 |         14        0.08       21.61
+         23 |         10        0.06       21.66
+         24 |         47        0.26       21.92
+         25 |        653        3.65       25.57
+         26 |          8        0.04       25.61
+         27 |          4        0.02       25.64
+         28 |          8        0.04       25.68
+         29 |          4        0.02       25.70
+         30 |      1,304        7.28       32.98
+         31 |          4        0.02       33.01
+         32 |          5        0.03       33.03
+         33 |          4        0.02       33.06
+         34 |          3        0.02       33.07
+         35 |        222        1.24       34.31
+         36 |         15        0.08       34.40
+         37 |          2        0.01       34.41
+         38 |          3        0.02       34.42
+         39 |          1        0.01       34.43
+         40 |        789        4.40       38.83
+         43 |          4        0.02       38.86
+         44 |          2        0.01       38.87
+         45 |        118        0.66       39.53
+         48 |          9        0.05       39.58
+         49 |          2        0.01       39.59
+         50 |      2,522       14.08       53.67
+         52 |          2        0.01       53.68
+         53 |          1        0.01       53.68
+         54 |          1        0.01       53.69
+         55 |         89        0.50       54.19
+         56 |          1        0.01       54.19
+         58 |          2        0.01       54.20
+         60 |        567        3.17       57.37
+         64 |          1        0.01       57.37
+         65 |         57        0.32       57.69
+         67 |          2        0.01       57.70
+         68 |          2        0.01       57.72
+         69 |          1        0.01       57.72
+         70 |        210        1.17       58.89
+         72 |          1        0.01       58.90
+         75 |        708        3.95       62.85
+         78 |          1        0.01       62.86
+         80 |        171        0.95       63.81
+         81 |          2        0.01       63.82
+         82 |          2        0.01       63.83
+         85 |         26        0.15       63.98
+         87 |          1        0.01       63.99
+         90 |         41        0.23       64.21
+         95 |          3        0.02       64.23
+         99 |          5        0.03       64.26
+        100 |      3,317       18.52       82.78
+        101 |          3        0.02       82.79
+        105 |          3        0.02       82.81
+        106 |          1        0.01       82.82
+        108 |          1        0.01       82.82
+        110 |         22        0.12       82.94
+        113 |          1        0.01       82.95
+        115 |          5        0.03       82.98
+        116 |          1        0.01       82.98
+        118 |          1        0.01       82.99
+        120 |         74        0.41       83.40
+        125 |         97        0.54       83.94
+        130 |          9        0.05       83.99
+        135 |          1        0.01       84.00
+        140 |          4        0.02       84.02
+        144 |          1        0.01       84.03
+        150 |        685        3.82       87.85
+        154 |          1        0.01       87.86
+        156 |          1        0.01       87.86
+        160 |          4        0.02       87.89
+        167 |          1        0.01       87.89
+        170 |          2        0.01       87.90
+        175 |         24        0.13       88.04
+        180 |          6        0.03       88.07
+        190 |          1        0.01       88.08
+        199 |         13        0.07       88.15
+        200 |      2,123       11.85      100.00
+------------+-----------------------------------
+      Total |     17,912      100.00
+
+. * Only 17,912 applicable values
+. 
+. gen books2 = (books^2)/1000
+(3,497 missing values generated)
+
+. 
+. * (h) Create z-scores for fall kindergarten maths and reading scores.
+. gen math_z = c1r4mscl
+(2,283 missing values generated)
+
+. replace math_z =. if c1r4mscl == -9
+(75 real changes made, 75 to missing)
+
+. replace math_z =. if c1r4mscl == -8
+(0 real changes made)
+
+. replace math_z =. if c1r4mscl == -7
+(0 real changes made)
+
+. replace math_z =. if c1r4mscl == -1
+(415 real changes made, 415 to missing)
+
+. 
+. tabstat math_z, stat(mean sd)
+
+    variable |      mean        sd
+-------------+--------------------
+      math_z |  25.90539  9.099181
+----------------------------------
+
+. * mean = 25.90539
+. * sd = 9.099181
+. replace math_z = (math_z - 25.90539)/9.099181
+(18,636 real changes made)
+
+. * math_z is now the z score for maths scores
+. 
+. 
+. gen reading_z = c1r4rscl
+(2,283 missing values generated)
+
+. replace reading_z =. if c1r4rscl == -9
+(48 real changes made, 48 to missing)
+
+. replace reading_z =. if c1r4rscl == -8
+(0 real changes made)
+
+. replace reading_z =. if c1r4rscl == -7
+(0 real changes made)
+
+. replace reading_z =. if c1r4rscl == -1
+(1,456 real changes made, 1,456 to missing)
+
+. 
+. tabstat reading_z, stat(mean sd)
+
+    variable |      mean        sd
+-------------+--------------------
+   reading_z |  35.21451  10.19878
+----------------------------------
+
+. * mean = 35.21451
+. * sd = 10.19878
+. replace reading_z = (reading_z - 35.21451)/10.19878
+(17,622 real changes made)
+
+. * reading_z is now the z score for reading scores
+. 
+. * (i) Create variable to express total weight in ounces.
+. * 1 lb = 16 oz
+. * Make copies to ensure no information is lost.
+. gen pounds = p1weighp
+(3,312 missing values generated)
+
+. replace pounds = . if p1weighp == -9
+(29 real changes made, 29 to missing)
+
+. replace pounds = . if p1weighp == -8
+(473 real changes made, 473 to missing)
+
+. replace pounds = . if p1weighp == -7
+(4 real changes made, 4 to missing)
+
+. replace pounds = . if p1weighp == -1
+(0 real changes made)
+
+. 
+. gen ounces = p1weigho
+(3,312 missing values generated)
+
+. replace ounces = . if p1weigho == -9
+(506 real changes made, 506 to missing)
+
+. replace ounces = . if p1weigho == -8
+(248 real changes made, 248 to missing)
+
+. replace ounces = . if p1weigho == -7
+(1 real change made, 1 to missing)
+
+. replace ounces = . if p1weigho == -1
+(0 real changes made)
+
+. 
+. gen birthweight = (pounds*16 + ounces)/10
+(4,067 missing values generated)
+
+. 
+. * (j) Copy variable for SES.
+. gen ses = wksesl
+(1,268 missing values generated)
+
+. 
+. * (k) Tweak missing values.
+. 
+. * NEW VARIABLES
+. * race_v2
+. * momage ------- replace "." with 0
+. * teen --------- replace "." with 0
+. * thirties ----- replace "." with 0
+. * female ------- replace "." with 0 (this wouldn't make sense because male = 0)
+. * wic ---------- replace "." with 0
+. * books -------- replace "." with 0
+. * books2 ------- replace "." with 0
+. * math_z
+. * reading_z
+. * birthweight -- replace "." with 0
+. * ses ---------- replace "." with 0
+. 
+. * Create flags for missing values.
+. gen momage_miss = 0
+
+. replace momage_miss = 1 if momage ==.
+(3,312 real changes made)
+
+. 
+. gen teen_miss = 0
+
+. replace teen_miss = 1 if teen ==.
+(4,606 real changes made)
+
+. 
+. gen thirties_miss = 0
+
+. replace thirties_miss = 1 if thirties ==.
+(4,606 real changes made)
+
+. 
+. gen female_miss = 0
+
+. replace female_miss = 1 if female ==.
+(13 real changes made)
+
+. 
+. gen wic_miss = 0
+
+. replace wic_miss = 1 if wic ==.
+(3,556 real changes made)
+
+. 
+. gen books_miss = 0
+
+. replace books_miss = 1 if books ==.
+(3,497 real changes made)
+
+. 
+. gen books2_miss = 0
+
+. replace books2_miss = 1 if books2 ==.
+(3,497 real changes made)
+
+. 
+. gen math_z_miss = 0
+
+. replace math_z_miss = 1 if math_z ==.
+(2,773 real changes made)
+
+. 
+. gen reading_z_miss = 0
+
+. replace reading_z_miss = 1 if reading_z ==.
+(3,787 real changes made)
+
+. 
+. gen birthweight_miss = 0
+
+. replace birthweight_miss = 1 if birthweight ==.
+(4,067 real changes made)
+
+. 
+. gen ses_miss = 0
+
+. replace ses_miss = 1 if ses ==.
+(1,268 real changes made)
+
+. 
+. * Replace some of the missing values with 0.
+. replace momage = 0 if momage ==.
+(3,312 real changes made)
+
+. replace teen = 0 if teen ==.
+(4,606 real changes made)
+
+. replace thirties = 0 if thirties ==.
+(4,606 real changes made)
+
+. replace wic = 0 if wic ==.
+(3,556 real changes made)
+
+. replace books = 0 if books==.
+(3,497 real changes made)
+
+. replace books2 = 0 if books2==.
+(3,497 real changes made)
+
+. replace birthweight = 0 if birthweight ==.
+(4,067 real changes made)
+
+. replace ses = 0 if ses ==.
+(1,268 real changes made)
+
+. 
+. * PROBLEM 5 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
+>                            
+. * Drop observations for which age and race data is missing.
+. drop if r1_kage == -1 | r1_kage == -7 | r1_kage == -8 | r1_kage == -9 | r1_kage ==.
+(2,295 observations deleted)
+
+. * 2,295 observations dropped because of age data missing
+. drop if race_v2 ==0
+(4,717 observations deleted)
+
+. * 4,717 observations dropped because of race data missing
+. * 14,397 observations remain
+. 
+. * PROBLEM 6 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
+>                            
+. 
+. * Stratum 15 has only one PSU, so move this one into stratum 16.
+. replace bycwstr = 16 if bycwstr == 15
+(18 real changes made)
+
+. 
+. * PROBLEM 6 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
+>                            
+. 
+. * (a)
+. * Y = math_z
+. * Model 1: X  = race_v2
+. * Model 2: Xs = race_v2, ses
+. * Model 3: Xs = race_v2, ses, books, books2
+. * Model 4: Xs = race_v2, ses, books, books2, female, r1_kage, birthweight,
+. *                teen, thirties, wic
+. 
+. * Y = reading_z
+. * Model 5: X  = race_v2
+. * Model 6: Xs = race_v2, ses
+. * Model 7: Xs = race_v2, ses, books, books2
+. * Model 8: Xs = race_v2, ses, books, books2, female, r1_kage, birthweight,
+. *                teen, thirties, wic
+. 
+. 
+. * MATHS SCORES REGRESSION
+. svy: regress math_z Black Hispanic Asian Other
+(running regress on estimation sample)
+
+Survey: Linear regression
+
+Number of strata   =        88                  Number of obs     =     13,919
+Number of PSUs     =       525                  Population size   =  2,920,755
+                                                Design df         =        437
+                                                F(   4,    434)   =     126.48
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.1003
+
+------------------------------------------------------------------------------
+             |             Linearized
+      math_z |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       Black |  -.6103908    .039992   -15.26   0.000    -.6889914   -.5317902
+    Hispanic |  -.7069072   .0359181   -19.68   0.000    -.7775009   -.6363135
+       Asian |    .043443   .0814313     0.53   0.594    -.1166027    .2034887
+       Other |  -.4992655   .1370294    -3.64   0.000    -.7685841   -.2299468
+       _cons |    .248824   .0238784    10.42   0.000     .2018933    .2957548
+------------------------------------------------------------------------------
+
+. estimates store m1, title(Model 1)
+
+. 
+. svy: regress math_z Black Hispanic Asian Other ses ses_miss
+(running regress on estimation sample)
+
+Survey: Linear regression
+
+Number of strata   =        88                  Number of obs     =     13,919
+Number of PSUs     =       525                  Population size   =  2,920,755
+                                                Design df         =        437
+                                                F(   6,    432)   =     207.99
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.2162
+
+------------------------------------------------------------------------------
+             |             Linearized
+      math_z |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       Black |  -.3386309    .028584   -11.85   0.000      -.39481   -.2824518
+    Hispanic |  -.4135008   .0269482   -15.34   0.000    -.4664649   -.3605366
+       Asian |   .0415501   .0673001     0.62   0.537     -.090722    .1738223
+       Other |  -.3291131   .0833345    -3.95   0.000    -.4928993   -.1653269
+         ses |   .4558635   .0186341    24.46   0.000       .41924     .492487
+    ses_miss |  -.2716655   .0636297    -4.27   0.000    -.3967238   -.1466071
+       _cons |   .1493096   .0176561     8.46   0.000     .1146082     .184011
+------------------------------------------------------------------------------
+
+. estimates store m2, title(Model 2)
+
+. 
+. svy: regress math_z Black Hispanic Asian Other ses ses_miss books books_miss ///
+> books2 books2_miss
+(running regress on estimation sample)
+
+Survey: Linear regression
+
+Number of strata   =        88                  Number of obs     =     13,919
+Number of PSUs     =       525                  Population size   =  2,920,755
+                                                Design df         =        437
+                                                F(   9,    429)   =     178.47
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.2308
+
+------------------------------------------------------------------------------
+             |             Linearized
+      math_z |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       Black |  -.2181871   .0251195    -8.69   0.000    -.2675571    -.168817
+    Hispanic |   -.294614   .0269891   -10.92   0.000    -.3476586   -.2415694
+       Asian |   .1451747   .0704735     2.06   0.040     .0066656    .2836839
+       Other |  -.2557345   .0617087    -4.14   0.000    -.3770171   -.1344518
+         ses |   .3933033   .0203473    19.33   0.000     .3533125    .4332941
+    ses_miss |  -.1921441   .0716276    -2.68   0.008    -.3329215   -.0513668
+       books |    .006521   .0006421    10.16   0.000     .0052591    .0077829
+  books_miss |          0  (omitted)
+      books2 |  -.0210877   .0029157    -7.23   0.000    -.0268182   -.0153572
+ books2_miss |   .1699418    .040793     4.17   0.000     .0897669    .2501167
+       _cons |  -.1864175   .0280839    -6.64   0.000    -.2416137   -.1312212
+------------------------------------------------------------------------------
+
+. estimates store m3, title(Model 3)
+
+. 
+. svy: regress math_z Black Hispanic Asian Other ses ses_miss books books_miss ///
+> books2 books2_miss female female_miss r1_kage birthweight birthweight_miss teen ///
+> teen_miss thirties thirties_miss wic wic_miss
+(running regress on estimation sample)
+
+Survey: Linear regression
+
+Number of strata   =        88                  Number of obs     =     13,919
+Number of PSUs     =       525                  Population size   =  2,920,755
+                                                Design df         =        437
+                                                F(  18,    420)   =     138.07
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.3121
+
+----------------------------------------------------------------------------------
+                 |             Linearized
+          math_z |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-----------------+----------------------------------------------------------------
+           Black |  -.0776019   .0229311    -3.38   0.001    -.1226708    -.032533
+        Hispanic |  -.1933381   .0246805    -7.83   0.000    -.2418454   -.1448308
+           Asian |   .2237849   .0536574     4.17   0.000     .1183263    .3292435
+           Other |  -.1828094   .0651007    -2.81   0.005    -.3107587     -.05486
+             ses |   .3058312   .0181657    16.84   0.000     .2701283    .3415341
+        ses_miss |    -.08334    .070171    -1.19   0.236    -.2212546    .0545746
+           books |   .0055606   .0005888     9.44   0.000     .0044033    .0067178
+      books_miss |          0  (omitted)
+          books2 |  -.0182532   .0026269    -6.95   0.000    -.0234161   -.0130903
+     books2_miss |   .3128054   .0665857     4.70   0.000     .1819375    .4436734
+          female |   .0107492   .0155193     0.69   0.489    -.0197524    .0412509
+     female_miss |          0  (omitted)
+         r1_kage |      .0593   .0022717    26.10   0.000     .0548352    .0637648
+     birthweight |   .0269442    .003497     7.70   0.000     .0200711    .0338173
+birthweight_miss |   .2267321   .0478753     4.74   0.000     .1326377    .3208266
+            teen |  -.1205803   .0178888    -6.74   0.000    -.1557392   -.0854215
+       teen_miss |  -.1139106   .0353198    -3.23   0.001    -.1833284   -.0444929
+        thirties |   .1680312   .0241749     6.95   0.000     .1205178    .2155447
+   thirties_miss |          0  (omitted)
+             wic |  -.2129447   .0200126   -10.64   0.000    -.2522777   -.1736117
+        wic_miss |  -.2090673   .0705904    -2.96   0.003    -.3478062   -.0703284
+           _cons |   -4.45935   .1581815   -28.19   0.000    -4.770241   -4.148459
+----------------------------------------------------------------------------------
+
+. estimates store m4, title(Model 4)
+
+. 
+. * READING SCORES REGRESSION
+. svy: regress reading_z Black Hispanic Asian Other
+(running regress on estimation sample)
+
+Survey: Linear regression
+
+Number of strata   =        88                  Number of obs     =     13,179
+Number of PSUs     =       525                  Population size   =  2,751,964
+                                                Design df         =        437
+                                                F(   4,    434)   =      41.40
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.0356
+
+------------------------------------------------------------------------------
+             |             Linearized
+   reading_z |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       Black |   -.351762   .0443572    -7.93   0.000     -.438942    -.264582
+    Hispanic |  -.3910835   .0354739   -11.02   0.000    -.4608042   -.3213628
+       Asian |   .2170429   .0946478     2.29   0.022     .0310214    .4030644
+       Other |  -.3749652   .1429465    -2.62   0.009    -.6559132   -.0940171
+       _cons |   .1187039   .0219533     5.41   0.000     .0755567    .1618512
+------------------------------------------------------------------------------
+
+. estimates store m5, title(Model 5)
+
+. 
+. svy: regress reading_z Black Hispanic Asian Other ses ses_miss
+(running regress on estimation sample)
+
+Survey: Linear regression
+
+Number of strata   =        88                  Number of obs     =     13,179
+Number of PSUs     =       525                  Population size   =  2,751,964
+                                                Design df         =        437
+                                                F(   6,    432)   =     118.07
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.1429
+
+------------------------------------------------------------------------------
+             |             Linearized
+   reading_z |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       Black |  -.0974449   .0356504    -2.73   0.007    -.1675123   -.0273774
+    Hispanic |  -.1960578   .0281592    -6.96   0.000    -.2514022   -.1407135
+       Asian |   .2129987   .0822352     2.59   0.010      .051373    .3746245
+       Other |  -.2172353   .0931376    -2.33   0.020    -.4002886    -.034182
+         ses |   .4269999   .0190928    22.36   0.000     .3894749    .4645249
+    ses_miss |   -.212852   .0627236    -3.39   0.001    -.3361294   -.0895745
+       _cons |   .0250001   .0176949     1.41   0.158    -.0097775    .0597777
+------------------------------------------------------------------------------
+
+. estimates store m6, title(Model 6)
+
+. 
+. svy: regress reading_z Black Hispanic Asian Other ses ses_miss books books_miss ///
+> books2 books2_miss
+(running regress on estimation sample)
+
+Survey: Linear regression
+
+Number of strata   =        88                  Number of obs     =     13,179
+Number of PSUs     =       525                  Population size   =  2,751,964
+                                                Design df         =        437
+                                                F(   9,    429)   =     111.78
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.1566
+
+------------------------------------------------------------------------------
+             |             Linearized
+   reading_z |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       Black |   .0184092    .034371     0.54   0.593    -.0491438    .0859622
+    Hispanic |  -.1133171   .0280525    -4.04   0.000    -.1684516   -.0581825
+       Asian |   .3097996   .0857883     3.61   0.000     .1411906    .4784085
+       Other |  -.1477686   .0714269    -2.07   0.039    -.2881515   -.0073856
+         ses |   .3726374   .0196265    18.99   0.000     .3340634    .4112113
+    ses_miss |   -.123057   .0707587    -1.74   0.083    -.2621266    .0160127
+       books |   .0065312   .0006408    10.19   0.000     .0052717    .0077907
+  books_miss |   .1652423   .0401949     4.11   0.000      .086243    .2442415
+      books2 |  -.0221759   .0030464    -7.28   0.000    -.0281634   -.0161884
+ books2_miss |          0  (omitted)
+       _cons |  -.3002389   .0263722   -11.38   0.000    -.3520711   -.2484067
+------------------------------------------------------------------------------
+
+. estimates store m7, title(Model 7)
+
+. 
+. svy: regress reading_z Black Hispanic Asian Other ses ses_miss books books_miss ///
+> books2 books2_miss female female_miss r1_kage birthweight birthweight_miss teen ///
+> teen_miss thirties thirties_miss wic wic_miss
+(running regress on estimation sample)
+
+Survey: Linear regression
+
+Number of strata   =        88                  Number of obs     =     13,179
+Number of PSUs     =       525                  Population size   =  2,751,964
+                                                Design df         =        437
+                                                F(  18,    420)   =      81.73
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.2104
+
+----------------------------------------------------------------------------------
+                 |             Linearized
+       reading_z |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-----------------+----------------------------------------------------------------
+           Black |   .1250032   .0338832     3.69   0.000     .0584089    .1915975
+        Hispanic |  -.0468431   .0270278    -1.73   0.084    -.0999638    .0062776
+           Asian |   .3534973   .0740728     4.77   0.000      .207914    .4990806
+           Other |  -.0892449   .0719789    -1.24   0.216    -.2307128     .052223
+             ses |   .2897118   .0188965    15.33   0.000     .2525726    .3268511
+        ses_miss |  -.0094725   .0726587    -0.13   0.896    -.1522765    .1333315
+           books |   .0055379   .0005966     9.28   0.000     .0043652    .0067105
+      books_miss |   .2530773   .0646788     3.91   0.000     .1259571    .3801974
+          books2 |  -.0191715    .002869    -6.68   0.000    -.0248101   -.0135328
+     books2_miss |          0  (omitted)
+          female |   .1416425   .0164666     8.60   0.000      .109279     .174006
+     female_miss |          0  (omitted)
+         r1_kage |   .0426104     .00197    21.63   0.000     .0387386    .0464822
+     birthweight |   .0151456   .0037221     4.07   0.000     .0078301    .0224611
+birthweight_miss |   .0931029   .0597957     1.56   0.120      -.02442    .2106259
+            teen |  -.1380159    .018115    -7.62   0.000    -.1736194   -.1024125
+       teen_miss |  -.0538567   .0404641    -1.33   0.184    -.1333852    .0256718
+        thirties |   .1972172   .0264976     7.44   0.000     .1451386    .2492957
+   thirties_miss |          0  (omitted)
+             wic |  -.1687833   .0219608    -7.69   0.000    -.2119453   -.1256214
+        wic_miss |  -.1816687   .0684727    -2.65   0.008    -.3162454   -.0470919
+           _cons |  -3.365653   .1450916   -23.20   0.000    -3.650817   -3.080489
+----------------------------------------------------------------------------------
+
+. estimates store m8, title(Model 8)
+
+. 
+. * (b)
+. estout m1 m2 m3 m4 m5 m6 m7 m8, cells(se(par fmt(3))) legend label ///
+> varlabels(_cons Constant) stats(r2 obslast)
+
+---------------------------------------------------------------------------------------
+> -------------------------------------
+                          Model 1      Model 2      Model 3      Model 4      Model 5  
+>     Model 6      Model 7      Model 8
+                               se           se           se           se           se  
+>          se           se           se
+---------------------------------------------------------------------------------------
+> -------------------------------------
+Black                     (0.040)      (0.029)      (0.025)      (0.023)      (0.044)  
+>     (0.036)      (0.034)      (0.034)
+Hispanic                  (0.036)      (0.027)      (0.027)      (0.025)      (0.035)  
+>     (0.028)      (0.028)      (0.027)
+Asian                     (0.081)      (0.067)      (0.070)      (0.054)      (0.095)  
+>     (0.082)      (0.086)      (0.074)
+Other                     (0.137)      (0.083)      (0.062)      (0.065)      (0.143)  
+>     (0.093)      (0.071)      (0.072)
+ses                                    (0.019)      (0.020)      (0.018)               
+>     (0.019)      (0.020)      (0.019)
+ses_miss                               (0.064)      (0.072)      (0.070)               
+>     (0.063)      (0.071)      (0.073)
+books                                               (0.001)      (0.001)               
+>                  (0.001)      (0.001)
+books_miss                                              (.)          (.)               
+>                  (0.040)      (0.065)
+books2                                              (0.003)      (0.003)               
+>                  (0.003)      (0.003)
+books2_miss                                         (0.041)      (0.067)               
+>                      (.)          (.)
+female                                                           (0.016)               
+>                               (0.016)
+female_miss                                                          (.)               
+>                                   (.)
+R1 COMPOSITE CHILD~A                                             (0.002)               
+>                               (0.002)
+birthweight                                                      (0.003)               
+>                               (0.004)
+birthweight_miss                                                 (0.048)               
+>                               (0.060)
+teen                                                             (0.018)               
+>                               (0.018)
+teen_miss                                                        (0.035)               
+>                               (0.040)
+thirties                                                         (0.024)               
+>                               (0.026)
+thirties_miss                                                        (.)               
+>                                   (.)
+wic                                                              (0.020)               
+>                               (0.022)
+wic_miss                                                         (0.071)               
+>                               (0.068)
+Constant                  (0.024)      (0.018)      (0.028)      (0.158)      (0.022)  
+>     (0.018)      (0.026)      (0.145)
+---------------------------------------------------------------------------------------
+> -------------------------------------
+r2                          0.100        0.216        0.231        0.312        0.036  
+>       0.143        0.157        0.210
+obslast                                                                                
+>                                      
+---------------------------------------------------------------------------------------
+> -------------------------------------
+
+. 
+. esttab * using "/Users/jenniferjackson/Desktop/NYU/Large Databases/PS9/JenniferJackso
+> n_PS9.csv"
+(output written to /Users/jenniferjackson/Desktop/NYU/Large Databases/PS9/JenniferJacks
+> on_PS9.csv)
+
+. 
+. * (c) The values in the table created above are quite close to the ones found in
+. * the table given by Fryer and Levitt.
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/jenniferjackson/Desktop/NYU/Large Databases/PS9/JenniferJackson_PS9
+> .log
+  log type:  text
+ closed on:  18 Apr 2019, 14:28:52
+---------------------------------------------------------------------------------------
